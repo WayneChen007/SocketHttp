@@ -96,6 +96,7 @@ class Http(object):
     encoding = 'utf-8'
     BUFF_SIZE = 1024
     Util = Util
+    default_timeout = 5
 
     @staticmethod
     def payload(method, url, headers, data=None):
@@ -108,7 +109,7 @@ class Http(object):
         return payload.encode(Http.encoding)
 
     @staticmethod
-    def init_socket(s, url, ip=None, proxies=None, timeout=5):
+    def init_socket(s, url, ip=None, proxies=None, timeout=default_timeout):
         s.settimeout(timeout)
         if proxies is not None:
             s.set_proxy(proxy_type=proxies.type, addr=proxies.addr, port=proxies.port)
@@ -133,7 +134,7 @@ class Http(object):
         return raw
 
     @staticmethod
-    def request(method, url, data=None, ip=None, headers=None, proxies=None, timeout=5):
+    def request(method, url, data=None, ip=None, headers=None, proxies=None, timeout=default_timeout):
         s = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s = Http.init_socket(s, url=url, ip=ip, proxies=proxies, timeout=timeout)
@@ -146,17 +147,17 @@ class Http(object):
         return Response(raw, Http.encoding)
 
     @staticmethod
-    def get(url, ip=None, headers=None, proxies=None, timeout=5):
+    def get(url, ip=None, headers=None, proxies=None, timeout=default_timeout):
         return Http.request('GET', url=url, ip=ip, headers=headers, proxies=proxies, timeout=timeout)
 
     @staticmethod
-    def post(url, data, ip=None, headers=None, proxies=None, timeout=5):
+    def post(url, data, ip=None, headers=None, proxies=None, timeout=default_timeout):
         return Http.request('POST', url=url, data=data, ip=ip, headers=headers, proxies=proxies, timeout=timeout)
 
     @staticmethod
-    def head(url, ip=None, headers=None, proxies=None, timeout=5):
+    def head(url, ip=None, headers=None, proxies=None, timeout=default_timeout):
         return Http.request('HEAD', url=url, ip=ip, headers=headers, proxies=proxies, timeout=timeout)
 
     @staticmethod
-    def options(url, ip=None, headers=None, proxies=None, timeout=5):
+    def options(url, ip=None, headers=None, proxies=None, timeout=default_timeout):
         return Http.request('OPTIONS', url=url, ip=ip, headers=headers, proxies=proxies, timeout=timeout)
