@@ -2,6 +2,7 @@ import socks
 import socket
 import re
 import ssl
+import time
 from urllib.parse import urlparse
 
 
@@ -102,6 +103,8 @@ class Http(object):
     def payload(method, url, headers, data=None):
         up = urlparse(url)
         _p = up.path if up.path else '/'
+        if method == 'POST' and data is not None:
+            headers.update({'Content-Length': str(len(data))})
         _h = Util.header_dict2str(headers) if headers else ""
         payload = str("%s %s HTTP/1.1\r\nHost: %s\r\n%s\r\n" % (method, _p, up.netloc, _h))
         if method == 'POST' and data is not None:
@@ -123,13 +126,16 @@ class Http(object):
     @staticmethod
     def sniff_data(ss):
         raw = b''
+        t_start = time.time()
         while True:
+            if time.time() - t_start > 30:
+                raise TimeoutError
             try:
                 packet = ss.recv(Http.BUFF_SIZE)
             except OSError:
                 break
             raw += packet
-            if packet.endswith(b'\r\n0\r\n\r\n'):
+            if packet.endswith(b'\r\n0\r\n\r\n') or packet == b'':
                 break
         return raw
 
